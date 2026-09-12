@@ -1,0 +1,40 @@
+# ============================================================
+# .gitignore — 喵喵机（contest2026_193_FirstNext）
+#
+# 仅忽略编译产物与本地临时文件。
+# 注意：logs/ 下导出的 AI Coding 日志必须提交，不要忽略！
+# ============================================================
+
+# Build artifacts
+build/
+out/
+*.o
+*.o.*
+*.a
+*.elf
+*.hex
+*.map
+*.bin.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local backups
+*.bak
+*.bak_*
+*.orig
+*.disabled
+*.win.bak

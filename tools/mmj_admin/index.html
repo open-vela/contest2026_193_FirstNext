@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>喵喵机 · 管理端（词书/字库 · 学习报告）</title>
+<style>
+/* ============================================================
+   喵喵机管理端 · 像素风（与板端/模拟器同一套配色）
+   纯前端单文件, 无任何外部依赖, 双击打开即用。
+   ============================================================ */
+:root{
+  --paper:#f8f3e6; --paper2:#efe8d5; --ink:#1d2027; --muted:#938d7d; --line:#1d2027;
+  --green:#5fbf61; --orange:#f09a3e; --blue:#5b93e0; --purple:#9c83c8; --red:#d4563f;
+}
+body.night{
+  --paper:#1f2a40; --paper2:#28354f; --ink:#f0ead9; --muted:#8fa1c0; --line:#0c1322;
+}
+body.gb{
+  --paper:#c6ddb4; --paper2:#b2d0a0; --ink:#243b22; --muted:#557a4e; --line:#243b22;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Courier New",Consolas,monospace;font-size:13px;line-height:1.65;
+}
+/* 顶部栏 */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;
+  padding:10px 16px;background:var(--paper2);border-bottom:2px solid var(--line);flex-wrap:wrap}
+.top .logo{font-weight:bold;letter-spacing:2px;font-size:15px;flex:1}
+.top .logo small{color:var(--muted);font-weight:normal;letter-spacing:0;margin-left:8px}
+.tbtn{border:2px solid var(--line);background:var(--paper);color:var(--ink);font-family:inherit;
+  font-size:12px;padding:4px 10px;cursor:pointer}
+.tbtn:active{transform:translate(1px,1px)}
+.tbtn.on{background:var(--blue);color:#fff}
+/* 标签 */
+.tabs{display:flex;gap:0;border-bottom:2px dashed var(--muted);padding:0 16px;margin-top:4px}
+.tab{border:2px solid var(--line);border-bottom:none;background:var(--paper2);color:var(--muted);
+  font-family:inherit;font-size:13px;padding:8px 18px;cursor:pointer;margin-right:6px;position:relative;top:2px}
+.tab.on{background:var(--paper);color:var(--ink);font-weight:bold}
+/* 页面与卡片 */
+.page{display:none;max-width:1080px;margin:0 auto;padding:18px 16px 60px}
+.page.on{display:block}
+.card{border:2px solid var(--line);background:var(--paper2);padding:14px 16px;margin-bottom:14px;
+  box-shadow:3px 3px 0 rgba(0,0,0,.13)}
+.card h3{margin:0 0 4px;font-size:14px;letter-spacing:2px}
+.card .desc{color:var(--muted);font-size:12px;margin-bottom:10px;line-height:1.6}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+/* 按钮 */
+.btn{border:2px solid var(--line);background:var(--paper);color:var(--ink);font-family:inherit;
+  font-size:13px;padding:7px 14px;cursor:pointer}
+.btn:hover{background:var(--paper2)}
+.btn:active{transform:translate(1px,1px)}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.green{background:var(--green);color:#fff}
+.btn.sm{font-size:11px;padding:4px 9px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+/* 拖放区 */
+.drop{border:3px dashed var(--muted);background:var(--paper);padding:26px 16px;text-align:center;
+  color:var(--muted);cursor:pointer;font-size:13px}
+.drop.over{border-color:var(--blue);color:var(--blue)}
+/* 指标 */
+.stat{border:2px solid var(--line);background:var(--paper);padding:10px 12px;text-align:center;box-shadow:2px 2px 0 rgba(0,0,0,.12)}
+.stat b{display:block;font-size:22px;font-weight:bold;line-height:1.25}
+.stat span{font-size:11px;color:var(--muted)}
+/* 表格 */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{border-bottom:1px dashed var(--muted);padding:5px 6px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:normal;font-size:11px;letter-spacing:1px}
+td.num{text-align:right;white-space:nowrap}
+.scroll{max-height:340px;overflow:auto}
+/* 柱状条 */
+.bar{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px}
+.bar .lb{width:86px;color:var(--muted);flex:none;text-align:right}
+.bar .track{flex:1;height:14px;border:2px solid var(--line);background:var(--paper);position:relative}
+.bar .fill{height:100%;background:var(--blue)}
+.bar .fill.g{background:var(--green)}.bar .fill.o{background:var(--orange)}
+.bar .fill.r{background:var(--red)}.bar .fill.p{background:var(--purple)}
+.bar .vl{width:62px;flex:none;text-align:right;font-size:11px}
+/* 提示 */
+.tip{border-left:5px solid var(--orange);background:var(--paper);padding:8px 12px;font-size:12px;color:var(--muted)}
+code{background:var(--paper);border:1px solid var(--line);padding:1px 5px;font-size:12px}
+pre{background:var(--paper);border:2px solid var(--line);padding:10px;overflow:auto;max-height:200px;font-size:11px;line-height:1.5}
+.mono{font-family:"Courier New",Consolas,monospace}
+.hidden{display:none !important}
+.ok{color:var(--green)}.err{color:var(--red)}
+</style>
+</head>
+<body class="paper">
+
+<div class="top">
+  <div class="logo">喵喵机 · 管理端 <small>词书/字库 · 学习报告</small></div>
+  <button class="tbtn on" onclick="setTheme('paper',this)">纸色</button>
+  <button class="tbtn" onclick="setTheme('night',this)">夜幕</button>
+  <button class="tbtn" onclick="setTheme('gb',this)">掌机</button>
+</div>
+
+<div class="tabs">
+  <button class="tab on" id="tab-font" onclick="go('font')">词书 / 字库生成</button>
+  <button class="tab" id="tab-report" onclick="go('report')">学习报告</button>
+</div>
+
+<!-- ==================== 页1: 词书 / 字库生成 ==================== -->
+<div class="page on" id="p-font">
+
+  <div class="card">
+    <h3>① 导入原始词书</h3>
+    <div class="desc">
+      支持 <b>KyleBing/english-vocabulary</b> 的 JSONL 格式（每行一个单词，含 headWord / trans / sentence / ukphone / usphone），
+      见 <code>tools/gen_words.py</code> 头部的下载命令。文件只在本机浏览器内解析，<b>不会上传</b>。
+    </div>
+    <div class="drop" id="drop">
+      点击选择 或 拖拽 <b>四级.jsonl</b> 到这里
+      <input type="file" id="fileWords" accept=".jsonl,.json,.txt" class="hidden">
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label>词数上限（留空=全部）：</label>
+      <input type="number" id="limit" min="1" placeholder="如 500" style="width:110px;
+        border:2px solid var(--line);background:var(--paper);color:var(--ink);font-family:inherit;padding:5px 8px">
+      <button class="btn sm" onclick="reparse()" id="btnReparse" disabled>按上限重新解析</button>
+    </div>
+    <div id="parseMsg" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card" id="cardOut" style="display:none">
+    <h3>② 生成结果</h3>
+    <div class="desc">产出与 <code>app/hello_app/</code> 下的 <code>mmj_words.h</code> / <code>mmj_words.c</code> 完全同构，可直接替换。</div>
+    <div class="grid" id="genStats"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" onclick="dl('mmj_words.h', state.h)">下载 mmj_words.h</button>
+      <button class="btn primary" onclick="dl('mmj_words.c', state.c)">下载 mmj_words.c</button>
+      <button class="btn" onclick="copyText(state.chars)">复制字符集</button>
+    </div>
+    <div style="margin-top:14px">
+      <div class="desc" style="margin:0 0 6px">字库字符集（自动从词库内容提取，共 <b id="charN">0</b> 个非 ASCII 字符）</div>
+      <pre id="charBox" class="mono"></pre>
+    </div>
+    <div style="margin-top:14px">
+      <div class="desc" style="margin:0 0 6px">
+        ③ 字库生成命令（在 WSL 里执行；字符集已自动写入 <code>tools/gen_board_fonts.js</code>，也可直接用下面命令单独生成）
+      </div>
+      <pre id="cmdBox" class="mono"></pre>
+      <button class="btn sm" onclick="copyText(document.getElementById('cmdBox').textContent)">复制命令</button>
+    </div>
+  </div>
+
+  <div class="card" id="cardPreview" style="display:none">
+    <h3>④ 词条预览（前 20 条）</h3>
+    <div class="scroll"><table id="previewTbl"></table></div>
+  </div>
+
+</div>
+
+<!-- ==================== 页2: 学习报告 ==================== -->
+<div class="page" id="p-report">
+
+  <div class="card">
+    <h3>① 导入板端学习数据</h3>
+    <div class="desc">
+      从板子取 <code>/data/mmj/words.json</code>（格式 <code>{"v":2,"n":7508,"w":[...]}</code>）拖进来。
+      可选再导入词书文件，用于把<b>单词原文</b>显示在错词榜里（否则只显示序号）。
+    </div>
+    <div class="grid">
+      <div>
+        <div class="desc" style="margin:0 0 6px"><b>words.json</b>（必需）</div>
+        <div class="drop" id="dropProg">点击/拖入 words.json
+          <input type="file" id="fileProg" accept=".json" class="hidden"></div>
+      </div>
+      <div>
+        <div class="desc" style="margin:0 0 6px"><b>词书.jsonl</b>（可选，显示单词原文）</div>
+        <div class="drop" id="dropBook">点击/拖入 四级.jsonl
+          <input type="file" id="fileBook" accept=".jsonl,.json,.txt" class="hidden"></div>
+      </div>
+    </div>
+    <div id="repMsg" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card" id="cardOverview" style="display:none">
+    <h3>② 总览</h3>
+    <div class="grid" id="ovStats"></div>
+    <div style="margin-top:14px">
+      <div class="bar"><span class="lb">学习进度</span>
+        <span class="track"><span class="fill g" id="ovProg" style="width:0%"></span></span>
+        <span class="vl" id="ovProgV"></span></div>
+    </div>
+  </div>
+
+  <div class="card" id="cardLv" style="display:none">
+    <h3>③ 复习等级分布</h3>
+    <div class="desc">等级越高代表记得越牢（0=刚回炉，5=已排到 30 天后再复习）</div>
+    <div id="lvBars"></div>
+  </div>
+
+  <div class="card" id="cardDue" style="display:none">
+    <h3>④ 未来 7 天到期安排</h3>
+    <div class="desc">每天需要复习的词数，用于判断学习负担是否过重</div>
+    <div id="dueBars"></div>
+  </div>
+
+  <div class="card" id="cardWrong" style="display:none">
+    <h3>⑤ 错词榜（按错误次数）</h3>
+    <div class="scroll"><table id="wrongTbl"></table></div>
+  </div>
+
+</div>
+
+<script>
+/* ================= 主题 ================= */
+function setTheme(t, el){
+  document.body.className = t;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  if (el) el.classList.add('on');
+}
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  document.getElementById('tab-'+id).classList.add('on');
+}
+
+/* ================= 小工具 ================= */
+function dl(name, text){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
+  a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+function copyText(t){
+  navigator.clipboard.writeText(t).then(
+    ()=>alert('已复制 '+t.length+' 字符'),
+    ()=>alert('复制失败，请手动选择复制'));
+}
+function esc(s){ return (s||'').replace(/\\/g,'\\\\').replace(/"/g,'\\"'); }
+function ipa(p){ if(!p) return ''; return '/'+p.trim().replace(/^\/|\/$/g,'').replace(/'/g,'ˈ')+'/'; }
+function num(n){ return (n||0).toLocaleString('en-US'); }
+
+function bindDrop(dropId, inputId, handler){
+  const drop=document.getElementById(dropId), inp=document.getElementById(inputId);
+  drop.onclick=()=>inp.click();
+  inp.onchange=e=>{ if(e.target.files[0]) readFile(e.target.files[0], handler); };
+  drop.ondragover=e=>{ e.preventDefault(); drop.classList.add('over'); };
+  drop.ondragleave=()=>drop.classList.remove('over');
+  drop.ondrop=e=>{
+    e.preventDefault(); drop.classList.remove('over');
+    if(e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0], handler);
+  };
+}
+function readFile(f, handler){
+  const r=new FileReader();
+  r.onload=()=>handler(r.result, f.name);
+  r.readAsText(f, 'utf-8');
+}
+
+/* ================= 页1: 词书解析与生成 ================= */
+const state = { raw:'', all:[], chars:'', h:'', c:'', cmd:'' };
+
+function parseCET4(text){
+  const out=[];
+  for (const line of text.split('\n')){
+    const s=line.trim(); if(!s) continue;
+    let o; try{ o=JSON.parse(s); }catch(e){ continue; }
+    const head=(o.headWord||'').trim(); if(!head) continue;
+    const cc=(o.content&&o.content.word&&o.content.word.content)||{};
+    const tr=((cc.trans||[])[0])||{};
+    let pos=(tr.pos||'').trim(); const cn=(tr.tranCn||'').trim();
+    if(!cn) continue;
+    if(pos && !/\.$/.test(pos)) pos+='.';
+    let ex='',exz='';
+    const ss=(cc.sentence&&cc.sentence.sentences)||[];
+    if(ss.length){ ex=(ss[0].sContent||'').trim(); exz=(ss[0].sCn||'').trim(); }
+    out.push({w:head, uk:ipa(cc.ukphone), us:ipa(cc.usphone), pos, cn, ex, exz});
+  }
+  return out;
+}
+
+function extractChars(words){
+  const set=new Set();
+  const add=s=>{ for(const ch of (s||'')) if(ch.codePointAt(0)>0x7f) set.add(ch); };
+  for(const x of words){ add(x.w); add(x.uk); add(x.us); add(x.pos); add(x.cn); add(x.ex); add(x.exz); }
+  // 板端界面文案 + 常用符号(与 tools/gen_board_fonts.js 保持一致的口径)
+  add('：；，。！？·×÷％-—…、（）「」『』【】《》￥＋℃°↑↓←→＊#♪'
+     +'今日到期已逾期学新词待复习天后错掌握了未在学习中闯关单元词库设置主题无线网络每日目标提醒纸色夜幕掌机连接'
+     +'上一页下返回再闯一次主页记模糊没记住选对应的英文解锁先完本全部单正确率');
+  return [...set].sort().join('');
+}
+
+function build(){                                   // 由 state.all 生成产物
+  const words=state.all;
+  const n=words.length;
+  const hdr=`/****************************************************************************
+ * mmj_words.h - 喵喵机词库(CET-4, ${n} 词)
+ *
+ * 数据来源: KyleBing/english-vocabulary (MIT) 的 CET-4 正序词表,
+ *          经 tools/gen_words.py / mmj_admin 清洗(首条释义/首条例句/英式+美式音标)。
+ * 本文件由工具生成, 请勿手改; 更新词库请重新生成。
+ ****************************************************************************/
+
+#ifndef __MMJ_WORDS_H
+#define __MMJ_WORDS_H
+
+#define MMJ_NWORD ${n}          /* 编译期常量, 用于数组维度 */
+
+typedef struct
+{
+  const char *w;    /* 单词 */
+  const char *uk;   /* 英式音标(IPA) */
+  const char *us;   /* 美式音标(IPA) */
+  const char *pos;  /* 词性 */
+  const char *cn;   /* 中文释义 */
+  const char *ex;   /* 例句(英) */
+  const char *exz;  /* 例句(中) */
+} mmj_word_t;
+
+extern const mmj_word_t MMJ_WORDS[MMJ_NWORD];
+
+#endif
+`;
+  let c='/* 自动生成, 勿手改. 见 mmj_words.h */\n#include "mmj_words.h"\n\n'
+      +'const mmj_word_t MMJ_WORDS[MMJ_NWORD] =\n{\n';
+  for(const x of words){
+    c+=`  {"${esc(x.w)}", "${esc(x.uk)}", "${esc(x.us)}", "${esc(x.pos)}",\n`
+     + `   "${esc(x.cn)}",\n   "${esc(x.ex)}", "${esc(x.exz)}"},\n`;
+  }
+  c+='};\n';
+
+  const chars=extractChars(words);
+  const sym=chars.replace(/'/g,"'\\''");            // 便于直接粘进 shell
+  const jobs=[['AlibabaPuHuiTi-3-55-Regular.ttf',12,'font_puhui_12_4.bin'],
+              ['AlibabaPuHuiTi-3-55-Regular.ttf',16,'font_puhui_16_4.bin'],
+              ['AlibabaPuHuiTi-3-55-Regular.ttf',21,'font_puhui_21_4.bin'],
+              ['AlibabaPuHuiTi-3-55-Regular.ttf',28,'font_puhui_28_4.bin'],
+              ['AlibabaPuHuiTi-3-95-ExtraBold.ttf',16,'font_puhui_16b_4.bin']];
+  const TTF='$TREE/packages/demos/bandx/resource/font/assets/';
+  const OUT='$TREE/vendor/allwinnertech/boards/r528/r528s3-dshanpi/src/etc/fonts/';
+  let cmd=`TREE=/home/mfskys/openvela_contest\nS='${sym}'\n\n`;
+  for(const [f,size,name] of jobs){
+    cmd+=`npx --yes lv_font_conv --bpp 4 --size ${size} --font ${TTF}${f} \\\n`
+       + `  -r 0x20-0x7F --symbols "$S" --format bin -o ${OUT}${name}\n\n`;
+  }
+
+  state.h=hdr; state.c=c; state.chars=chars; state.cmd=cmd.trim();
+  renderGen(words);
+}
+
+function renderGen(words){
+  const n=words.length;
+  const hasUk=words.filter(x=>x.uk).length;
+  const hasEx=words.filter(x=>x.ex).length;
+  document.getElementById('genStats').innerHTML =
+    `<div class="stat"><b>${num(n)}</b><span>词条数</span></div>
+     <div class="stat"><b>${hasUk?Math.round(hasUk*100/n):0}%</b><span>含音标</span></div>
+     <div class="stat"><b>${hasEx?Math.round(hasEx*100/n):0}%</b><span>含例句</span></div>
+     <div class="stat"><b>${(new Blob([state.c]).size/1024).toFixed(0)} KB</b><span>mmj_words.c</span></div>
+     <div class="stat"><b>${state.chars.length}</b><span>字库字符数</span></div>`;
+  document.getElementById('charN').textContent=state.chars.length;
+  document.getElementById('charBox').textContent=state.chars;
+  document.getElementById('cmdBox').textContent=state.cmd;
+  document.getElementById('cardOut').style.display='';
+  document.getElementById('cardPreview').style.display='';
+
+  let t='<tr><th>#</th><th>单词</th><th>音标(英)</th><th>词性/释义</th><th>例句</th></tr>';
+  words.slice(0,20).forEach((x,i)=>{
+    t+=`<tr><td class="num">${i+1}</td><td><b>${x.w}</b></td><td class="mono">${x.uk||'—'}</td>
+        <td>${x.pos} ${x.cn}</td><td>${x.ex||'—'}</td></tr>`;
+  });
+  document.getElementById('previewTbl').innerHTML=t;
+}
+
+function loadWords(text, name){
+  const all=parseCET4(text);
+  if(!all.length){ alert('没能解析出词条，请确认是 KyleBing 的 JSONL 格式'); return; }
+  state.raw=text; state.all=all; state.fileName=name;
+  const lim=parseInt(document.getElementById('limit').value||'0',10);
+  if(lim>0 && lim<all.length) state.all=all.slice(0,lim);
+  build();
+  document.getElementById('parseMsg').innerHTML =
+    `<span class="ok">✓ 已解析 ${name}：共 ${num(all.length)} 词${state.all.length!==all.length?`，按上限取前 ${num(state.all.length)} 词`:''}</span>`;
+  document.getElementById('btnReparse').disabled=false;
+}
+function reparse(){
+  if(!state.raw) return;
+  const all=parseCET4(state.raw);
+  const lim=parseInt(document.getElementById('limit').value||'0',10);
+  state.all=(lim>0&&lim<all.length)?all.slice(0,lim):all;
+  build();
+  document.getElementById('parseMsg').innerHTML =
+    `<span class="ok">✓ 已按上限重新生成：${num(state.all.length)} 词</span>`;
+}
+
+/* ================= 页2: 学习报告 ================= */
+const rep = { prog:null, books:null };
+
+function parseProg(text){
+  const o=JSON.parse(text);
+  if(!o || typeof o.n!=='number' || !Array.isArray(o.w))
+    throw new Error('格式不对：应为 {"v":2,"n":N,"w":[...]}');
+  if(o.v!==2) throw new Error('版本不是 v2（板端旧格式无法解析）');
+  const n=o.n, arr=o.w, words=[];
+  for(let i=0;i<n;i++){
+    const b=i*6;
+    words.push({c:arr[b]||0, e:arr[b+1]||0, lv:arr[b+2]||0, due:arr[b+3]||0,
+                rep:arr[b+4]||0, st:arr[b+5]||0});
+  }
+  return {n, words};
+}
+
+function renderReport(){
+  const {n, words}=rep.prog;
+  const today=Math.floor(Date.now()/86400000);
+  const learned=words.filter(w=>w.c>0).length;
+  const dueToday=words.filter(w=>w.c>0 && w.due<=today).length;
+  const overdue=words.filter(w=>w.c>0 && w.due<today).length;
+  const errWords=words.filter(w=>w.e>0);
+  const mastered=words.filter(w=>w.c>0 && w.e===0).length;
+
+  document.getElementById('ovStats').innerHTML =
+    `<div class="stat"><b>${num(learned)}</b><span>已学 / 共 ${num(n)}</span></div>
+     <div class="stat"><b>${(learned*100/n).toFixed(1)}%</b><span>覆盖率</span></div>
+     <div class="stat"><b>${num(dueToday)}</b><span>今日到期</span></div>
+     <div class="stat"><b class="${overdue?'err':''}">${num(overdue)}</b><span>已逾期</span></div>
+     <div class="stat"><b>${num(errWords.length)}</b><span>错词</span></div>
+     <div class="stat"><b>${num(mastered)}</b><span>无错词</span></div>`;
+  const pct=(learned*100/n);
+  document.getElementById('ovProg').style.width=pct.toFixed(1)+'%';
+  document.getElementById('ovProgV').textContent=pct.toFixed(1)+'%';
+  document.getElementById('cardOverview').style.display='';
+
+  // 等级分布
+  const lvCnt=[0,0,0,0,0,0];
+  words.forEach(w=>{ if(w.c>0) lvCnt[Math.max(0,Math.min(5,w.lv))]++; });
+  const lvMax=Math.max(1,...lvCnt);
+  const cls=['r','o','o','','g','g'];
+  let html='';
+  for(let i=0;i<6;i++){
+    const p=(lvCnt[i]*100/lvMax).toFixed(1);
+    html+=`<div class="bar"><span class="lb">Lv${i} · ${{0:'1天',1:'2天',2:'4天',3:'7天',4:'15天',5:'30天'}[i]}</span>
+      <span class="track"><span class="fill ${cls[i]}" style="width:${p}%"></span></span>
+      <span class="vl">${lvCnt[i]} 词</span></div>`;
+  }
+  document.getElementById('lvBars').innerHTML=html;
+  document.getElementById('cardLv').style.display='';
+
+  // 未来 7 天到期
+  let dh='', dmax=1;
+  const dvals=[];
+  for(let d=0;d<7;d++){
+    const day=today+d;
+    const v=words.filter(w=>w.c>0 && w.due===day).length;
+    dvals.push(v); if(v>dmax) dmax=v;
+  }
+  for(let d=0;d<7;d++){
+    const p=(dvals[d]*100/dmax).toFixed(1);
+    const label = d===0?'今天':(d===1?'明天':d+' 天后');
+    dh+=`<div class="bar"><span class="lb">${label}</span>
+      <span class="track"><span class="fill ${d===0?'o':''}" style="width:${p}%"></span></span>
+      <span class="vl">${dvals[d]} 词</span></div>`;
+  }
+  document.getElementById('dueBars').innerHTML=dh;
+  document.getElementById('cardDue').style.display='';
+
+  // 错词榜
+  const top=words.map((w,i)=>({i,...w})).filter(w=>w.e>0)
+                 .sort((a,b)=>b.e-a.e || b.c-a.c).slice(0,20);
+  let t='<tr><th>#</th><th>单词</th><th>错误次数</th><th>学习次数</th><th>等级</th><th>到期</th></tr>';
+  if(!top.length){
+    t+='<tr><td colspan="6" style="color:var(--muted)">没有错词 🎉</td></tr>';
+  }
+  top.forEach((w,k)=>{
+    const word=(rep.books&&rep.books[w.i])?rep.books[w.i].w:'#'+(w.i+1);
+    const cn=(rep.books&&rep.books[w.i])?rep.books[w.i].cn:'';
+    const dueTxt = w.due<=today ? '已到期' : '还有 '+(w.due-today)+' 天';
+    t+=`<tr><td class="num">${k+1}</td><td><b>${word}</b> <span style="color:var(--muted)">${cn}</span></td>
+        <td class="num"><span class="err">${w.e}</span></td><td class="num">${w.c}</td>
+        <td class="num">Lv${w.lv}</td><td class="num">${dueTxt}</td></tr>`;
+  });
+  document.getElementById('wrongTbl').innerHTML=t;
+  document.getElementById('cardWrong').style.display='';
+}
+
+/* ================= 绑定 ================= */
+bindDrop('drop','fileWords',(txt,name)=>loadWords(txt,name));
+bindDrop('dropProg','fileProg',(txt,name)=>{
+  try{
+    rep.prog=parseProg(txt);
+    document.getElementById('repMsg').innerHTML=
+      `<span class="ok">✓ 已载入 ${name}：共 ${num(rep.prog.n)} 词</span>`;
+    renderReport();
+  }catch(e){
+    document.getElementById('repMsg').innerHTML=`<span class="err">✗ ${e.message}</span>`;
+  }
+});
+bindDrop('dropBook','fileBook',(txt,name)=>{
+  const all=parseCET4(txt);
+  if(!all.length){ document.getElementById('repMsg').innerHTML='<span class="err">✗ 词书解析失败</span>'; return; }
+  rep.books=all;
+  document.getElementById('repMsg').innerHTML=
+    `<span class="ok">✓ 已载入词书 ${name}：${num(all.length)} 词（错词榜将显示单词原文）</span>`;
+  if(rep.prog) renderReport();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>喵喵机 · AI 服务</title>
+<style>
+  :root { --paper:#f8f3e6; --panel:#efe8d5; --ink:#1d2027; --muted:#938d7d; --line:#1d2027; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); color:var(--ink); font-family:"Microsoft YaHei",system-ui,sans-serif; padding:24px; max-width:720px; margin:0 auto; }
+  h1 { font-size:22px; margin-bottom:4px; }
+  .sub { color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .card { background:var(--panel); border:2px solid var(--line); box-shadow:4px 4px 0 var(--line); padding:16px; margin-bottom:16px; }
+  .card h2 { font-size:15px; margin-bottom:12px; }
+  label { display:block; font-size:12px; color:var(--muted); margin:10px 0 4px; }
+  input { width:100%; padding:9px 10px; border:2px solid var(--line); font-size:14px; background:#fff; }
+  button { padding:9px 18px; border:2px solid var(--line); background:var(--ink); color:var(--paper); font-size:14px; cursor:pointer; box-shadow:3px 3px 0 rgba(0,0,0,.25); margin-top:14px; }
+  button:active { transform:translate(2px,2px); box-shadow:none; }
+  button.ghost { background:transparent; color:var(--ink); }
+  .msg { margin-top:10px; font-size:13px; min-height:18px; }
+  .ok { color:#2e7d32; } .err { color:#c62828; }
+  ol { font-size:13px; line-height:2; padding-left:20px; }
+  code { background:#fff; padding:1px 6px; border:1px solid var(--line); font-size:12px; }
+</style>
+</head>
+<body>
+  <h1>喵喵机 · AI 服务</h1>
+  <div class="sub">板子与电脑处于同一 WiFi 局域网；板子「设置 → AI 服务」填入本页地址栏的 IP 和端口</div>
+
+  <div class="card">
+    <h2>MiMo 大模型配置</h2>
+    <label>API Key（platform.xiaomimimo.com 获取）</label>
+    <input id="key" placeholder="sk-...">
+    <label>API Base URL</label>
+    <input id="base" placeholder="https://api.xiaomimimo.com/v1">
+    <label>模型名</label>
+    <input id="model" placeholder="mimo-v2.5-pro">
+    <button onclick="save()">保存配置</button>
+    <button class="ghost" onclick="test()">测试连接</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="card">
+    <h2>板端接口（AI 挑战）</h2>
+    <ol>
+      <li>板端发起 <code>POST /api/quiz</code>，参数 <code>{"words":[...],"count":5}</code></li>
+      <li>服务代理 MiMo 生成例句挖空四选一题，返回 <code>{"code":0,"quiz":[...]}</code></li>
+      <li>板端渲染题目，用户作答后展示 AI 讲解气泡</li>
+    </ol>
+  </div>
+
+<script>
+function load() {
+  fetch('/api/config').then(r => r.json()).then(c => {
+    document.getElementById('key').value = c.api_key || '';
+    document.getElementById('base').value = c.base_url || '';
+    document.getElementById('model').value = c.model || '';
+  });
+}
+function save() {
+  fetch('/api/config', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ api_key:v('key'), base_url:v('base'), model:v('model') }) })
+    .then(() => set('已保存', 0));
+}
+function test() {
+  set('测试中...', 0);
+  fetch('/api/config/test', { method:'POST' }).then(r => r.json())
+    .then(j => set(j.msg || j.code, j.code));
+}
+function v(id){ return document.getElementById(id).value.trim(); }
+function set(t, code){ document.getElementById('msg').textContent = t;
+  document.getElementById('msg').className = 'msg ' + (code ? 'err' : 'ok'); }
+load();
+</script>
+</body>
+</html>

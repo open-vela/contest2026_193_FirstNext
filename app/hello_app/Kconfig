@@ -3,8 +3,31 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config LVX_USE_DEMO_CONTEST2026_000_HELLO_APP
-	bool "Contest 2026 team 000 hello app"
+menu "Contest 2026 Team 193 MiaoMiaoJi App"
+
+config LVX_USE_DEMO_CONTEST2026_193_EYE
+	bool "MiaoMiaoJi English Learning Machine (Team 193)"
 	default n
+	depends on GRAPHICS_LVGL
 	---help---
-		Enable the contest 2026 team 000 hello app demo.
+	Enable MiaoMiaoJi, an offline English vocabulary learning machine
+	for Team 193. It provides five pages (home clock, word study,
+	unit challenge, vocabulary browser and settings), spaced-repetition
+	scheduling with per-word due dates, progress persisted to
+	/data/mmj/ as JSON, three switchable themes, and a full CET-4
+	word list (7508 words with IPA and examples) compiled into the
+	firmware.
+
+if LVX_USE_DEMO_CONTEST2026_193_EYE
+
+config LVX_USE_DEMO_CONTEST2026_193_EYE_PRIORITY
+	int "MiaoMiaoJi Task Priority"
+	default 100
+
+config LVX_USE_DEMO_CONTEST2026_193_EYE_STACKSIZE
+	int "MiaoMiaoJi Stack Size"
+	default 40960
+
+endif
+
+endmenu
