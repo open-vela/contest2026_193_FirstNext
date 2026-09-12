@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "team_id": "contest2026_193_FirstNext",
+  "github_login": "mfskys",
+  "generator": "opencode-collector@1.3.0",
+  "updated_at": "2026-09-02T12:41:19.760Z",
+  "sessions": [
+    {
+      "session_id": "ses_0a3fc436effeRnKgOP7RGs7neA",
+      "tool": "opencode",
+      "started_at": "2026-07-13T15:06:16.593Z",
+      "last_event_at": "2026-07-14T05:20:31.236Z",
+      "event_count": 499,
+      "raw_message_count": 219,
+      "file_path": "logs/mfskys/2026-07-14/opencode__ses_0a3fc436effeRnKgOP7RGs7neA.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "项目整体架构查看",
+      "model": "xiaomi-token-plan-cn/mimo-v2.5-pro"
+    },
+    {
+      "session_id": "ses_0a0edf49cffekiKfzDxZIAKTeK",
+      "tool": "opencode",
+      "started_at": "2026-07-14T05:20:45.923Z",
+      "last_event_at": "2026-07-25T04:41:11.512Z",
+      "event_count": 1352,
+      "raw_message_count": 644,
+      "file_path": "logs/mfskys/2026-07-25/opencode__ses_0a0edf49cffekiKfzDxZIAKTeK.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "项目整体架构查看 (fork #1)",
+      "model": "xiaomi-token-plan-cn/mimo-v2.5-pro"
+    },
+    {
+      "session_id": "ses_fdcb38f26ffeuF33M2dsJDBzl2",
+      "tool": "opencode",
+      "started_at": "2026-08-21T07:50:07.321Z",
+      "last_event_at": "2026-09-02T12:41:19.760Z",
+      "event_count": 1254,
+      "raw_message_count": 587,
+      "file_path": "logs/mfskys/2026-09-02/opencode__ses_fdcb38f26ffeuF33M2dsJDBzl2.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "项目进度及模拟器总览",
+      "model": "xiaomi-token-plan-cn/mimo-v2.5-pro",
+      "redacted_count_total": 18
+    },
+    {
+      "session_id": "ses_fdcac55f3ffe6EZ33aiyvUHlj4",
+      "tool": "opencode",
+      "started_at": "2026-08-21T07:58:00.716Z",
+      "last_event_at": "2026-08-21T08:01:30.402Z",
+      "event_count": 17,
+      "raw_message_count": 6,
+      "file_path": "logs/mfskys/2026-08-21/opencode__ses_fdcac55f3ffe6EZ33aiyvUHlj4.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Analyze web UI code structure (@explore subagent)",
+      "model": "xiaomi-token-plan-cn/mimo-v2.5-pro"
+    },
+    {
+      "session_id": "ses_f9f53f420ffeLBEK8wMpYbMiwQ",
+      "tool": "opencode",
+      "started_at": "2026-09-02T05:51:23.103Z",
+      "last_event_at": "2026-09-02T05:54:15.200Z",
+      "event_count": 48,
+      "raw_message_count": 10,
+      "file_path": "logs/mfskys/2026-09-02/opencode__ses_f9f53f420ffeLBEK8wMpYbMiwQ.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "全面总览项目状态 (@explore subagent)",
+      "model": "xiaomi-token-plan-cn/mimo-v2.5-pro"
+    },
+    {
+      "session_id": "ses_f9f4dac2fffe5RK3llmXAM6a65",
+      "tool": "opencode",
+      "started_at": "2026-09-02T05:58:14.736Z",
+      "last_event_at": "2026-09-02T06:00:34.130Z",
+      "event_count": 53,
+      "raw_message_count": 8,
+      "file_path": "logs/mfskys/2026-09-02/opencode__ses_f9f4dac2fffe5RK3llmXAM6a65.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "查找遗留文件和代码 (@explore subagent)",
+      "model": "xiaomi-token-plan-cn/mimo-v2.5-pro"
+    }
+  ]
+}
